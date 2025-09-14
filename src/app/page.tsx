@@ -1,11 +1,30 @@
-
+'use client';
 
 export default function Home() {
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const form = event.target as HTMLFormElement;
+    const url = (form.elements.namedItem('url') as HTMLInputElement).value;
+    const format = (form.elements.namedItem('format') as HTMLInputElement).value;
+
+    const response = await fetch('/process', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({ "url": url, "format": format }),
+    });
+    console.log('Response:', response);
+  }
+
   return (
     <>
       <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold">Web to Reader</h1>
-        <form className="mt-8 w-full max-w-md border border-blue-400 p-2 rounded-lg shadow-md">
+        <form className="mt-8 w-full max-w-md border border-blue-400 p-2 rounded-lg shadow-md"
+          onSubmit={handleSubmit}>
           <label htmlFor="url" className="block text-sm font-medium text-gray-500">
             Enter URL:
           </label>
