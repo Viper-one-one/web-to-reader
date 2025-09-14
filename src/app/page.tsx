@@ -19,14 +19,14 @@ export default function Home() {
           <label className="block text-sm font-medium text-gray-500 mt-4">
             Select Format:
           </label>
-          <div className="flex flex-col-2 items-center">
-            <div className="col-2 justify-center">
+          <div className="flex justify-evenly">
+            <div className="flex flex-col justify-items-evenly">
               <label className="block text-sm font-medium text-gray-500">
                 PDF
               </label>
               <input type="radio" name="format" value="PDF" />
             </div>
-            <div className="col-2 justify-center">
+            <div className="flex flex-col justify-items-evenly">
               <label className="block text-sm font-medium text-gray-500">
                 EPUB
               </label>
