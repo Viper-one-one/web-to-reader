@@ -1,6 +1,23 @@
 'use client';
+import { useState } from "react";
 
 export default function Home() {
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    url: "",
+    format: "",
+    valid: false
+  });
+
+  const validateForm = Object.values(formData).every(value => value !== "");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -15,7 +32,12 @@ export default function Home() {
         'Accept': 'application/json',
       },
       body: JSON.stringify({ "url": url, "format": format }),
-    });
+    })
+    .catch(err => console.error('Error:', err));
+    const data = await response?.json();
+    if (data?.error) {
+      setError(data.error);
+    }
     console.log('Response:', response);
   }
 
@@ -24,7 +46,8 @@ export default function Home() {
       <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
         <h1 className="text-4xl font-bold">Web to Reader</h1>
         <form className="mt-8 w-full max-w-md border border-blue-400 p-2 rounded-lg shadow-md"
-          onSubmit={handleSubmit}>
+          onSubmit={handleSubmit}
+          onChange={handleChange}>
           <label htmlFor="url" className="block text-sm font-medium text-gray-500">
             Enter URL:
           </label>
@@ -52,13 +75,15 @@ export default function Home() {
               <input type="radio" name="format" value="EPUB" />
             </div>
           </div>
-          <button
-            type="submit"
-            className="mt-4 w-full bg-indigo-600 text-white p-2 rounded-md hover:bg-indigo-700"
-          >
-            Submit
-          </button>
+            <button
+              type="submit"
+              className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md hover:bg-indigo-700`}
+              disabled={!validateForm}
+            >
+              Submit
+            </button>
         </form>
+        {error && <p className="mt-4 text-red-500">{error}</p>}
       </div>
     </>
   );
