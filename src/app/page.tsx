@@ -24,7 +24,7 @@ export default function Home() {
     const form = event.target as HTMLFormElement;
     const url = (form.elements.namedItem('url') as HTMLInputElement).value;
     const format = (form.elements.namedItem('format') as HTMLInputElement).value;
-
+    console.log('Submitting:', { url, format });
     const response = await fetch('/process', {
       method: 'POST',
       headers: {
