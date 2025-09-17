@@ -1,4 +1,5 @@
 'use client';
+import Image from "next/image";
 import { useState } from "react";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
     format: "",
     valid: false
   });
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
   const validateForm = Object.values(formData).every(value => value !== "");
 
@@ -41,13 +43,23 @@ export default function Home() {
     console.log('Response:', response);
   }
 
+  function handleThemeChange() {
+    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+  }
+
   return (
     <>
-      <div className="container mx-auto flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="absolute top-4 right-4 z-10">
+        <button className={`flex items-center justify-center p-2 border border-gray-500 rounded-full ${theme === 'dark' ? 'bg-white' : 'bg-gray-800'}  shadow`} onClick={handleThemeChange}>
+          <Image className={`${theme === 'dark' ? '' : 'invert'}`} src="/dark-mode-night-moon-svgrepo-com.svg" alt="Theme Icon" width={24} height={24} />
+        </button>
+      </div>
+      <div className={`container max-w-full flex min-h-screen flex-col items-center justify-center p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
+        
         <h1 className="text-4xl font-bold">Web to Reader</h1>
         <form className="mt-8 w-full max-w-md border border-blue-400 p-2 rounded-lg shadow-md"
           onSubmit={handleSubmit}>
-          <label htmlFor="url" className="block text-sm font-medium text-gray-500">
+          <label htmlFor="url" className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'}`}>
             Enter URL:
           </label>
           <input
@@ -58,18 +70,18 @@ export default function Home() {
             className="mt-1 block w-full rounded-md border border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
             onChange={handleChange}
           />
-          <label className="block text-sm font-medium text-gray-500 mt-4">
+          <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'} mt-4`}>
             Select Format:
           </label>
           <div className="flex justify-evenly">
             <div className="flex flex-col justify-items-evenly">
-              <label className="block text-sm font-medium text-gray-500">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'}`}>
                 PDF
               </label>
               <input type="radio" name="format" value="PDF" onChange={handleChange} />
             </div>
             <div className="flex flex-col justify-items-evenly">
-              <label className="block text-sm font-medium text-gray-500">
+              <label className={`block text-sm font-medium ${theme === 'dark' ? 'text-gray-500' : 'text-gray-700'}`}>
                 EPUB
               </label>
               <input type="radio" name="format" value="EPUB" onChange={handleChange} />
@@ -77,7 +89,7 @@ export default function Home() {
           </div>
             <button
               type="submit"
-              className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md hover:bg-indigo-700`}
+              className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md ${validateForm ? 'hover:bg-indigo-700' : 'hover:bg-gray-700'}`}
               disabled={!validateForm}
             >
               Submit
