@@ -92,10 +92,15 @@ export default function Home() {
               className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md ${validateForm ? 'hover:bg-indigo-700' : 'hover:bg-gray-700'}`}
               disabled={!validateForm}
             >
-              Submit
+              Get Book
             </button>
         </form>
         {error && <p className="mt-4 text-red-500">{error}</p>}
+      </div>
+      <div>
+        <footer className={`w-full py-4 text-center ${theme === 'dark' ? 'bg-gray-800 text-gray-400' : 'bg-gray-200 text-gray-600'}`}>
+          <p>© 2025 Taylor Nastally. All rights reserved.</p>
+        </footer>
       </div>
     </>
   );
