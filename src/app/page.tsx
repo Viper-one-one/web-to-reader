@@ -1,6 +1,7 @@
 'use client';
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
@@ -10,7 +11,7 @@ export default function Home() {
     valid: false
   });
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-
+  const router = useRouter();
   const validateForm = Object.values(formData).every(value => value !== "");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -39,6 +40,11 @@ export default function Home() {
     const data = await response?.json();
     if (data?.error) {
       setError(data.error);
+    }
+    if (data?.books) {
+      setError(null);
+      router.push('/book-selection');
+      console.log('Books received:', data.books);
     }
     console.log('Response:', response);
   }
@@ -92,7 +98,7 @@ export default function Home() {
               className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md ${validateForm ? 'hover:bg-indigo-700' : 'hover:bg-gray-700'}`}
               disabled={!validateForm}
             >
-              Get Book
+              Get Books
             </button>
         </form>
         {error && <p className="mt-4 text-red-500">{error}</p>}
