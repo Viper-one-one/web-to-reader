@@ -9,11 +9,14 @@ type SelectionComponentProps = {
 export default function SelectionComponent({ books }: SelectionComponentProps) {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const [loading, setLoading] = useState<boolean>(true);
+    
     async function fetchBooks() {
         const response = await fetch('/get_books', {
             method: 'GET',
         });
         if (!response.ok) {
+            setLoading(true);
+            console.error('Error fetching books:', response.statusText);
             throw new Error('Network response was not ok');
         }
         const data = await response?.json();
@@ -48,10 +51,10 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
             <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
             <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select your book from the list below:</p>
             <form action="/get_book" method="POST" className="w-full max-w-md mt-4">
-            <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-                <option value="book1">Book 1</option>
-                <option value="book2">Book 2</option>
-                <option value="book3">Book 3</option>
+            <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
+                {books.map(book => (
+                    <option key={book.id} value={book.id}>{book.title} by {book.author}</option>
+                ))}
             </select>
             <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
             </form>
