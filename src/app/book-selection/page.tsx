@@ -1,9 +1,9 @@
 import SelectionComponent from '../page-components/selection-page';
 
-export default function BookSelection() {
+export default async function BookSelection() {
   return (
     <main>
-      <SelectionComponent />
+      <SelectionComponent books={[{id: 1, title: "test", author: "author1"}]} />
     </main>
   );
 }

@@ -1,14 +1,43 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
+type SelectionComponentProps = {
+    books: Array<{id: number, title: string, author: string}>;
+};
 
-export default function SelectionComponent() {
+export default function SelectionComponent({ books }: SelectionComponentProps) {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
+    const [loading, setLoading] = useState<boolean>(true);
+    async function fetchBooks() {
+        const response = await fetch('/get_books', {
+            method: 'GET',
+        });
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response?.json();
+        return data?.books;
+    }
+
+    useEffect(() => {
+        fetchBooks().then(fetchedBooks => {
+            console.log('Fetched books:', fetchedBooks);
+            setLoading(false);
+        }).catch(error => {
+            console.error('Error fetching books:', error);
+            setLoading(false);
+        });
+    }, []);
 
     function handleThemeChange() {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     }
+
+    if (loading) {
+        return <div>Loading...</div>;
+    }
+
     return (
         <div className={`container max-w-full flex min-h-screen flex-col items-center justify-center p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
             <div className="absolute top-4 right-4 z-10">
