@@ -3,12 +3,13 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 
 type SelectionComponentProps = {
-    books: Array<{id: number, title: string, author: string}>;
+    books: Array<{id: number, title: string}>;
 };
 
 export default function SelectionComponent({ books }: SelectionComponentProps) {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const [loading, setLoading] = useState<boolean>(true);
+    const [error, setError] = useState<string | null>(null);
     
     async function fetchBooks() {
         setLoading(true);
@@ -17,8 +18,10 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
         });
         if (!response.ok) {
             setLoading(false);
+            // error thrown here
             console.error('Error fetching books:', response.statusText);
-            throw new Error('Network response was not ok');
+            setError('response not ok: ' + response.statusText + ' ' + response.status);
+            return [];
         }
         const data = await response?.json();
         return data?.books;
@@ -30,6 +33,7 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
             setLoading(false);
         }).catch(error => {
             console.error('Error fetching books:', error);
+            setError(error);
             setLoading(false);
         });
     }, []);
@@ -45,18 +49,25 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
                     <Image className={`${theme === 'dark' ? '' : 'invert'}`} src="/dark-mode-night-moon-svgrepo-com.svg" alt="Theme Icon" width={24} height={24} />
                 </button>
             </div>
-            <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
-            <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select your book from the list below:</p>
-            { loading ? <div>Loading books...</div> :
-                <form action="/get_books" method="POST" className="w-full max-w-md mt-4">
-                <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
-                    {books.map(book => (
-                        <option key={book.id} value={book.id}>{book.title}</option>
-                    ))}
-                </select>
-                <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
-                </form>
+            { error ?
+                (<div className="text-red-500">{error}
+                    <button className="ml-4 p-2 bg-blue-500 text-white rounded" onClick={() => { window.history.back(); }}>Go Back</button>
+                </div>) :
+                (<>
+                    <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
+                    <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select your book from the list below:</p>
+                    { loading ? <div>Loading books...</div> :
+                        <form action="/get_books" method="POST" className="w-full max-w-md mt-4">
+                        <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
+                            {books.map(book => (
+                                <option key={book.id} value={book.id}>{book.title}</option>
+                            ))}
+                        </select>
+                        <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
+                        </form>
+                    }
+                </>)
             }
         </div>
-  );
+    );
 }
