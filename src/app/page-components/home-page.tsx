@@ -38,8 +38,26 @@ export default function HomePage() {
       },
       body: JSON.stringify({ "url": url, "format": format }),
     })
-    .catch(err => console.error('Error:', err));
-    const data = await response?.json();
+    .catch(err => {
+      console.error('Fetch Error:', err);
+      setError('Failed to connect to server. Make sure Flask server is running on port 5000.');
+      setLoading(false);
+      return null;
+    });
+    
+    if (!response) return;
+    
+    let data;
+    try {
+      data = await response.json();
+    } catch (err) {
+      console.error('JSON Parse Error:', err);
+      const text = await response.text();
+      console.error('Response was:', text);
+      setError('Server returned invalid response. Check if Flask server is running properly.');
+      setLoading(false);
+      return;
+    }
     if (data?.error) {
       setError(data.error);
     }

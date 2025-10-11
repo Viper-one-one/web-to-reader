@@ -14,16 +14,21 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
     async function fetchBooks() {
         setLoading(true);
         const response = await fetch('/get_books', {
-            method: 'GET',
-        });
-        if (!response.ok) {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({}),
+        }).catch(err => {
+            console.error('Error:', err);
+            setError('Fetch error: ' + err.message);
             setLoading(false);
-            // error thrown here
-            console.error('Error fetching books:', response.statusText);
-            setError('response not ok: ' + response.statusText + ' ' + response.status);
-            return [];
-        }
+        });
         const data = await response?.json();
+        if (data?.error) {
+            setError(data.error);
+        }
         return data?.books;
     }
 
@@ -42,6 +47,15 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     }
 
+    function debug(event: React.FormEvent) {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const selectedBooks = formData.getAll('books');
+        console.log('Selected books:', selectedBooks);
+        alert('Selected books: ' + selectedBooks.join(', '));
+    }
+
     return (
         <div className={`container max-w-full flex min-h-screen flex-col items-center justify-center p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
             <div className="absolute top-4 right-4 z-10">
@@ -50,19 +64,22 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
                 </button>
             </div>
             { error ?
-                (<div className="text-red-500">{error}
-                    <button className="ml-4 p-2 bg-blue-500 text-white rounded" onClick={() => { window.history.back(); }}>Go Back</button>
-                </div>) :
+                (<div className="text-red-500">{error}</div>) :
                 (<>
                     <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
                     <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select your book from the list below:</p>
                     { loading ? <div>Loading books...</div> :
-                        <form action="/get_books" method="POST" className="w-full max-w-md mt-4">
-                        <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
-                            {books.map(book => (
-                                <option key={book.id} value={book.id}>{book.title}</option>
-                            ))}
-                        </select>
+                        <form onSubmit={debug} method="POST" className="w-full max-w-md mt-4">
+                        <div className="space-y-2">
+                            {/*Array.isArray(books) ? books.map((book, index) => (
+                                <label key={book?.id || index} className={`flex items-center p-2 hover:bg-gray-100 ${theme === 'dark' ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} cursor-pointer border rounded`}>
+                                    <input type="checkbox" name="books" value={String(book?.id || index)} className="mr-2" />
+                                    <span>{String(book?.title || `Book ${index + 1}`)}</span>
+                                </label>
+                            )) :*/ (
+                                <div>No books available</div>
+                            )}
+                        </div>
                         <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
                         </form>
                     }
