@@ -10,6 +10,7 @@ export default function HomePage() {
     format: "",
     valid: false
   });
+  const [loading, setLoading] = useState<boolean>(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const router = useRouter();
   const validateForm = Object.values(formData).every(value => value !== "");
@@ -28,6 +29,7 @@ export default function HomePage() {
     const url = (form.elements.namedItem('url') as HTMLInputElement).value;
     const format = (form.elements.namedItem('format') as HTMLInputElement).value;
     console.log('Submitting:', { url, format });
+    setLoading(true);
     const response = await fetch('/process', {
       method: 'POST',
       headers: {
@@ -41,11 +43,16 @@ export default function HomePage() {
     if (data?.error) {
       setError(data.error);
     }
+    if (response?.status && (response.status >= 400 && response.status < 600)) {
+      setError(data?.error || `Error: ${response.status} ${response.statusText}`);
+      return;
+    }
     if (data?.books) {
       setError(null);
       router.push('/book-selection');
       console.log('Books received:', data.books);
     }
+    setLoading(false);
     console.log('Response:', response);
   }
 
@@ -96,7 +103,7 @@ export default function HomePage() {
             <button
               type="submit"
               className={`mt-4 w-full ${validateForm ? 'bg-indigo-500' : 'bg-gray-500'} text-white p-2 rounded-md ${validateForm ? 'hover:bg-indigo-700' : 'hover:bg-gray-700'}`}
-              disabled={!validateForm}
+              disabled={!validateForm || loading}
             >
               Get Books
             </button>

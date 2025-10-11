@@ -11,11 +11,12 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
     const [loading, setLoading] = useState<boolean>(true);
     
     async function fetchBooks() {
+        setLoading(true);
         const response = await fetch('/get_books', {
             method: 'GET',
         });
         if (!response.ok) {
-            setLoading(true);
+            setLoading(false);
             console.error('Error fetching books:', response.statusText);
             throw new Error('Network response was not ok');
         }
@@ -37,10 +38,6 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     }
 
-    if (loading) {
-        return <div>Loading...</div>;
-    }
-
     return (
         <div className={`container max-w-full flex min-h-screen flex-col items-center justify-center p-4 ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
             <div className="absolute top-4 right-4 z-10">
@@ -50,14 +47,16 @@ export default function SelectionComponent({ books }: SelectionComponentProps) {
             </div>
             <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
             <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select your book from the list below:</p>
-            <form action="/get_book" method="POST" className="w-full max-w-md mt-4">
-            <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
-                {books.map(book => (
-                    <option key={book.id} value={book.id}>{book.title} by {book.author}</option>
-                ))}
-            </select>
-            <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
-            </form>
+            { loading ? <div>Loading books...</div> :
+                <form action="/get_books" method="POST" className="w-full max-w-md mt-4">
+                <select name="book" className={`block w-full border border-gray-300 rounded-md p-2 ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`} size={books.length}>
+                    {books.map(book => (
+                        <option key={book.id} value={book.id}>{book.title}</option>
+                    ))}
+                </select>
+                <button type="submit" className="mt-4 w-full bg-blue-500 text-white p-2 rounded-md">Get Book</button>
+                </form>
+            }
         </div>
   );
 }
