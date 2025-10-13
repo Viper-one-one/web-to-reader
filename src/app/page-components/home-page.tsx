@@ -69,7 +69,8 @@ export default function HomePage() {
       setError(null);
       // Pass books data as URL search parameters
       const booksParam = encodeURIComponent(JSON.stringify(data.books));
-      router.push(`/book-selection?books=${booksParam}`);
+      const formatParam = encodeURIComponent(format);
+      router.push(`/book-selection?books=${booksParam}&format=${formatParam}`);
       console.log('Books received:', data.books);
     }
     setLoading(false);

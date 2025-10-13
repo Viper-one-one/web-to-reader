@@ -12,8 +12,8 @@ module.exports = {
         destination: 'http://localhost:5000/process' // Proxy to Backend
       },
       {
-        source: '/get_books',
-        destination: 'http://localhost:5000/get_books' // Proxy to Backend
+        source: '/post_books',
+        destination: 'http://localhost:5000/post_books' // Proxy to Backend
       },
       {
         source: '/download',

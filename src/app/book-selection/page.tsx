@@ -6,6 +6,7 @@ import SelectionComponent from '../page-components/selection-page';
 function BookSelectionContent() {
   const searchParams = useSearchParams();
   const booksParam = searchParams.get('books');
+  const formatParam = searchParams.get('format');
 
   let books = [{id: 1, title: "test"}]; // fallback
 
@@ -34,7 +35,7 @@ function BookSelectionContent() {
 
   return (
     <main>
-      <SelectionComponent books={books} />
+      <SelectionComponent books={books} format={formatParam} />
     </main>
   );
 }
