@@ -67,7 +67,6 @@ export default function HomePage() {
     }
     if (data?.books) {
       setError(null);
-      // Pass books data as URL search parameters
       const booksParam = encodeURIComponent(JSON.stringify(data.books));
       const formatParam = encodeURIComponent(format);
       router.push(`/book-selection?books=${booksParam}&format=${formatParam}`);

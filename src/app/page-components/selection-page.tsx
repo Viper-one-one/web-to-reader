@@ -49,30 +49,6 @@ export default function SelectionComponent({ books, format }: SelectionComponent
         return data?.books;
     }
 
-    useEffect(() => {
-        fetch('/post_books', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({}),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data?.error) {
-                setError(data.error);
-            }
-            console.log('Fetched books:', data?.books);
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error('Error fetching books:', error);
-            setError('Fetch error: ' + error.message);
-            setLoading(false);
-        });
-    }, []);
-
     function handleThemeChange() {
         setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
     }
@@ -94,11 +70,16 @@ export default function SelectionComponent({ books, format }: SelectionComponent
                 </button>
             </div>
             { error ?
-                (<div className="text-red-500">{error}</div>) :
+                (
+                <>
+                <div className="text-red-500">{error}</div>
+                <button onClick={() => setError(null)} className="mt-4 bg-blue-500 text-white p-2 rounded-md">Return to Selection</button>
+                </>
+                ) :
                 (<>
                     <h1 className={`text-2xl font-bold mb-4 ${theme === 'dark' ? 'text-white' : 'text-black'}`}>Book Selection Page</h1>
                     <p className={`${theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Select books you would like to download from the list below:</p>
-                    { loading ? <div>Loading books...</div> :
+                    { 
                         <form onSubmit={fetchBooks} method="POST" className="w-full max-w-md mt-4">
                         <div className="space-y-2">
                             {Array.isArray(books) ? books.map((book, index) => (

@@ -16,7 +16,6 @@ function BookSelectionContent() {
       console.log('Parsed books data:', parsedData);
       console.log('Type of parsed data:', typeof parsedData);
       
-      // Ensure we have an array
       if (Array.isArray(parsedData)) {
         books = parsedData;
       } else if (parsedData && typeof parsedData === 'object') {
