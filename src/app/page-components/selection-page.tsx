@@ -5,9 +5,10 @@ import Image from "next/image";
 type SelectionComponentProps = {
     books: Array<{id: number, title: string}>;
     format: string | null;
+    url: string | null;
 };
 
-export default function SelectionComponent({ books, format }: SelectionComponentProps) {
+export default function SelectionComponent({ books, format, url }: SelectionComponentProps) {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -32,7 +33,8 @@ export default function SelectionComponent({ books, format }: SelectionComponent
             },
             body: JSON.stringify({
                 selectedBooks: selectedBooks,
-                format: format
+                format: format,
+                url: url
             }),
         }).catch(err => {
             console.error('Error:', err);
