@@ -25,30 +25,80 @@ export default function SelectionComponent({ books, format, url }: SelectionComp
             return;
         }
         console.log('Selected books:', selectedBooks);
-        const response = await fetch('/download', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                selectedBooks: selectedBooks,
-                format: format,
-                url: url
-            }),
-        }).catch(err => {
+        
+        try {
+            const response = await fetch('http://localhost:5000/download', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    selectedBooks: selectedBooks,
+                    format: format,
+                    url: url
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Check if response is JSON (error) or file (success)
+            const contentType = response.headers.get('content-type');
+            
+            if (contentType && contentType.includes('application/json')) {
+                // Handle JSON response (likely an error)
+                const data = await response.json();
+                if (data?.error) {
+                    setError(data.error);
+                    setLoading(false);
+                    return;
+                }
+            } else {
+                // Handle file download
+                const blob = await response.blob();
+                
+                // Get filename from Content-Disposition header
+                const contentDisposition = response.headers.get('content-disposition');
+                let filename = 'download.pdf'; // Default filename
+                
+                if (contentDisposition) {
+                    // Parse Content-Disposition header: attachment; filename=Volume_1_20241019_181142.pdf
+                    const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+                    if (filenameMatch && filenameMatch[1]) {
+                        filename = filenameMatch[1].replace(/['"]/g, '');
+                    }
+                } else {
+                    // Fallback: create filename based on selected books and format
+                    const bookNames = selectedBooks.join('_');
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
+                    filename = `books_${bookNames}_${timestamp}.${format?.toLowerCase() || 'pdf'}`;
+                }
+                
+                console.log('Download filename:', filename);
+                
+                // Create download link and trigger download
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                
+                // Cleanup
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                console.log('File downloaded successfully');
+                setLoading(false);
+                return;
+            }
+            
+        } catch (err) {
             console.error('Error:', err);
-            setError('Fetch error: ' + err.message);
+            setError('Download failed: ' + (err as Error).message);
             setLoading(false);
-        });
-        const data = await response?.json();
-        if (data?.error) {
-            setError(data.error);
-            setLoading(false);
-            return;
         }
-        setLoading(false);
-        return data?.books;
     }
 
     function handleThemeChange() {
