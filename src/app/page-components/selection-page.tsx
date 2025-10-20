@@ -61,6 +61,8 @@ export default function SelectionComponent({ books, format, url }: SelectionComp
                 // Get filename from Content-Disposition header
                 const contentDisposition = response.headers.get('content-disposition');
                 let filename = 'download.pdf'; // Default filename
+                console.log('Download content-disposition header:', contentDisposition);
+                console.log('Response content-type:', contentType);
                 
                 if (contentDisposition) {
                     // Parse Content-Disposition header: attachment; filename=Volume_1_20241019_181142.pdf
@@ -69,10 +71,21 @@ export default function SelectionComponent({ books, format, url }: SelectionComp
                         filename = filenameMatch[1].replace(/['"]/g, '');
                     }
                 } else {
-                    // Fallback: create filename based on selected books and format
+                    // Fallback: create filename based on content type and selected books
                     const bookNames = selectedBooks.join('_');
                     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-                    filename = `books_${bookNames}_${timestamp}.${format?.toLowerCase() || 'zip'}`;
+                    
+                    // Determine extension from content-type
+                    let extension = 'pdf';
+                    if (contentType?.includes('application/zip')) {
+                        extension = 'zip';
+                    } else if (contentType?.includes('application/pdf')) {
+                        extension = 'pdf';
+                    } else if (contentType?.includes('application/epub')) {
+                        extension = 'epub';
+                    }
+                    
+                    filename = `books_${bookNames}_${timestamp}.${extension}`;
                 }
                 
                 console.log('Download filename:', filename);
