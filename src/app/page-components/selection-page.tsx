@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 
 type SelectionComponentProps = {
@@ -72,7 +72,7 @@ export default function SelectionComponent({ books, format, url }: SelectionComp
                     // Fallback: create filename based on selected books and format
                     const bookNames = selectedBooks.join('_');
                     const timestamp = new Date().toISOString().slice(0, 19).replace(/[:-]/g, '');
-                    filename = `books_${bookNames}_${timestamp}.${format?.toLowerCase() || 'pdf'}`;
+                    filename = `books_${bookNames}_${timestamp}.${format?.toLowerCase() || 'zip'}`;
                 }
                 
                 console.log('Download filename:', filename);
